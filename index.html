@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn the 23 countries of Monsoon Asia with an interactive map quiz.">
+  <title>Monsoon Atlas — Asia Map Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Monsoon Atlas home"><span class="brand-mark" aria-hidden="true">MA</span><span>Monsoon <b>Atlas</b></span></a>
+    <nav class="topnav" aria-label="Primary navigation">
+      <button class="nav-link active" data-scroll="game">Play</button>
+      <button class="nav-link" data-scroll="progress">Progress</button>
+      <button class="nav-link" data-scroll="about">Study guide</button>
+    </nav>
+    <button class="icon-button" id="soundToggle" aria-label="Turn sound off" title="Sound on">♪</button>
+  </header>
+
+  <main>
+    <section class="hero" id="game">
+      <div class="eyebrow">Interactive geography lab</div>
+      <div class="hero-copy">
+        <div><h1>Monsoon Asia: <span>Countries</span></h1><p>From the Himalayas to the Pacific islands—learn all 23 countries, then test your map skills.</p></div>
+        <div class="hero-stat" title="Your current daily streak"><span class="flame">◆</span><strong id="streakValue">0</strong><small>day streak</small></div>
+      </div>
+
+      <div class="game-shell">
+        <aside class="control-panel">
+          <div class="panel-label">Game mode</div>
+          <div class="mode-grid" role="tablist" aria-label="Quiz mode">
+            <button class="mode active" data-mode="learn" role="tab" aria-selected="true"><span class="mode-icon">◎</span><span><b>Learn</b><small>Explore the map</small></span></button>
+            <button class="mode" data-mode="pin" role="tab" aria-selected="false"><span class="mode-icon">⌖</span><span><b>Pin</b><small>Find each country</small></span></button>
+            <button class="mode" data-mode="type" role="tab" aria-selected="false"><span class="mode-icon">Aa</span><span><b>Type</b><small>Name the highlight</small></span></button>
+            <button class="mode" data-mode="sprint" role="tab" aria-selected="false"><span class="mode-icon">↗</span><span><b>Sprint</b><small>60-second challenge</small></span></button>
+          </div>
+
+          <div class="prompt-card" id="promptCard">
+            <span class="prompt-kicker" id="promptKicker">Study mode</span>
+            <strong id="promptText">Select any country</strong>
+            <span id="promptHint">Click the map to reveal its name and capital.</span>
+          </div>
+
+          <form class="type-form hidden" id="typeForm" autocomplete="off">
+            <label for="typeAnswer">Your answer</label>
+            <div class="input-row"><input id="typeAnswer" type="text" placeholder="Country name…" spellcheck="false"><button type="submit">Check</button></div>
+          </form>
+
+          <button class="primary-button" id="startButton">Start learning</button>
+          <button class="text-button hidden" id="skipButton">Skip this country</button>
+        </aside>
+
+        <section class="map-panel" aria-label="Interactive map of Monsoon Asia">
+          <div class="scorebar">
+            <div class="score-item"><small>Score</small><strong><span id="scoreValue">0</span> / <span id="totalValue">23</span></strong></div>
+            <div class="score-item"><small>Accuracy</small><strong id="accuracyValue">—</strong></div>
+            <div class="score-item"><small>Time</small><strong id="timerValue">00:00</strong></div>
+            <div class="score-item best"><small>Best</small><strong id="bestValue">—</strong></div>
+          </div>
+          <div class="map-wrap" id="mapWrap">
+            <div class="map-loading" id="mapLoading"><span></span>Drawing the map…</div>
+            <svg id="map" viewBox="0 0 900 590" role="img" aria-label="Countries of Monsoon Asia"></svg>
+            <div class="map-tooltip hidden" id="mapTooltip"></div>
+            <div class="result-toast hidden" id="resultToast" role="status" aria-live="polite"></div>
+            <div class="map-legend"><i></i> Monsoon Asia quiz area</div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="progress-section" id="progress">
+      <div class="section-heading">
+        <div><span class="eyebrow">Your progress</span><h2>Every attempt tells a story.</h2></div>
+        <button class="outline-button" id="clearHistory">Reset progress</button>
+      </div>
+      <div class="progress-grid">
+        <article class="summary-card accent-card"><span class="card-icon">★</span><small>Personal best</small><strong id="overallBest">No score yet</strong><p id="overallBestMeta">Finish a quiz to set your first record.</p></article>
+        <article class="summary-card"><small>Quizzes finished</small><strong id="gamesPlayed">0</strong><p>Across Pin, Type, and Sprint</p></article>
+        <article class="summary-card"><small>Average accuracy</small><strong id="averageAccuracy">—</strong><p>Across your saved attempts</p></article>
+        <article class="history-card">
+          <div class="history-head"><h3>Recent attempts</h3><span>Saved on this device</span></div>
+          <div class="history-list" id="historyList"><div class="empty-state">Your completed games will appear here with their score and date.</div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="study-section" id="about">
+      <div class="study-copy">
+        <span class="eyebrow">Study guide</span><h2>One region. Three geographic worlds.</h2>
+        <p>Monsoon Asia stretches from high mountain kingdoms to vast river plains and island chains. Use Learn mode to connect each country with its capital before testing yourself.</p>
+        <div class="region-chips"><span>East Asia · 6</span><span>South Asia · 6</span><span>Southeast Asia · 11</span></div>
+      </div>
+      <div class="country-list" id="countryList"></div>
+    </section>
+  </main>
+
+  <footer><span>Monsoon Atlas</span><span>Built for geography practice · Progress stays on your device</span></footer>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

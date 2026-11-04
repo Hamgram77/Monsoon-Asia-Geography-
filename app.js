@@ -26,7 +26,7 @@ const COUNTRIES = [
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
-const state = { mode:"pin",active:false,score:0,attempts:0,index:0,order:[],current:null,elapsed:0,timer:null,mapReady:false,sound:true,completed:new Set(),wrong:new Set() };
+const state = { mode:"pin",active:false,score:0,attempts:0,mistakes:0,index:0,order:[],current:null,elapsed:0,timer:null,mapReady:false,sound:true,completed:new Set(),resolved:new Set(),revealed:new Set(),wrong:new Set(),triesByCountry:new Map() };
 const storage = {
   read(key,fallback){ try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
   write(key,value){ localStorage.setItem(key,JSON.stringify(value)); }
@@ -45,12 +45,17 @@ function setupCountryList(){
 }
 
 function setMode(mode){
-  endTimers(); Object.assign(state,{mode,active:false,score:0,attempts:0,elapsed:0}); state.completed.clear(); state.wrong.clear();
+  endTimers(); Object.assign(state,{mode,active:false,score:0,attempts:0,mistakes:0,elapsed:0,current:null}); state.completed.clear(); state.resolved.clear(); state.revealed.clear(); state.wrong.clear(); state.triesByCountry.clear();
+  $("#endScreen").classList.add("hidden");
   $(".game-shell").classList.remove("is-playing");
+  $(".game-shell").classList.toggle("labels-mode",mode==="labels");
   $$(".mode").forEach(button=>{ const active=button.dataset.mode===mode; button.classList.toggle("active",active); button.setAttribute("aria-selected",active); });
+  $("#moreMode").classList.toggle("active",mode==="labels"||mode==="sprint");
+  $("#moreMenu").classList.add("hidden"); $("#moreMode").setAttribute("aria-expanded","false");
+  $("#labelTray").classList.add("hidden"); $("#labelTray").innerHTML="";
   $("#typeForm").classList.toggle("hidden",mode!=="type"); $("#skipButton").classList.add("hidden");
   $("#startButton").textContent=mode==="learn"?"Start learning":"Start quiz";
-  const copy={ learn:["Study mode","Select any country","Click the map to reveal its name and capital."],pin:["Pin mode","Ready to locate?","Find each named country on the map."],type:["Type mode","Ready to identify?","Name the country highlighted on the map."],sprint:["Sprint mode","60 seconds","Find as many countries as you can before time runs out."] }[mode];
+  const copy={ learn:["Study mode","Select any country","Click the map to reveal its name and capital."],pin:["Pin mode","Ready to locate?","Find each named country on the map."],type:["Type mode","Ready to identify?","Name the country highlighted on the map."],labels:["Place the labels","Choose any country","Select a country label, then place it on the map."],sprint:["Sprint mode","60 seconds","Find as many countries as you can before time runs out."] }[mode];
   setPrompt(...copy); resetMapClasses(); updateScore(); updateBest();
 }
 
@@ -58,12 +63,13 @@ function setPrompt(kicker,title,hint){ $("#promptKicker").textContent=kicker; $(
 
 function startGame(){
   if(!state.mapReady){ showToast("The map is still loading.",false); return; }
-  resetMapClasses(); Object.assign(state,{active:true,score:0,attempts:0,elapsed:0,index:0,order:shuffle(COUNTRIES)}); state.completed.clear(); state.wrong.clear();
+  resetMapClasses(); Object.assign(state,{active:true,score:0,attempts:0,mistakes:0,elapsed:0,index:0,current:null,order:shuffle(COUNTRIES)}); state.completed.clear(); state.resolved.clear(); state.revealed.clear(); state.wrong.clear(); state.triesByCountry.clear();
+  $("#endScreen").classList.add("hidden");
   $(".game-shell").classList.add("is-playing");
   $("#startButton").textContent="Restart";
   if(state.mode==="learn"){
     setPrompt("Study mode","Choose a country","Click anywhere in green to learn its capital."); COUNTRIES.forEach(addLabel);
-  } else { $("#skipButton").classList.remove("hidden"); beginTimer(); nextQuestion(); }
+  } else { $("#skipButton").classList.remove("hidden"); beginTimer(); if(state.mode==="labels")renderLabelTray(); nextQuestion(); }
   if(state.mode==="sprint"){
     state.elapsed=60; clearInterval(state.timer); state.timer=setInterval(()=>{ state.elapsed--; updateScore(); if(state.elapsed<=0)finishGame(); },1000);
   }
@@ -74,8 +80,14 @@ function beginTimer(){ clearInterval(state.timer); state.timer=setInterval(()=>{
 function endTimers(){ clearInterval(state.timer); state.timer=null; }
 function nextQuestion(){
   clearHighlights(); if(!state.active)return;
-  if(state.mode!=="sprint"&&state.index>=state.order.length){ finishGame(); return; }
-  if(state.mode==="sprint"&&state.index>=state.order.length){ state.order=shuffle(COUNTRIES); state.index=0; }
+  if(state.mode==="labels"){
+    const remaining=COUNTRIES.filter(country=>!state.resolved.has(country.id));
+    if(!remaining.length){ finishGame(); return; }
+    if(!state.current||state.resolved.has(state.current.id))state.current=remaining[0];
+    setPrompt("Place this label",state.current.name,"Choose another label below at any time."); updateLabelTray(); return;
+  }
+  while(state.index<state.order.length&&state.resolved.has(state.order[state.index].id))state.index++;
+  if(state.index>=state.order.length){ finishGame(); return; }
   state.current=state.order[state.index++];
   if(state.mode==="type"){
     highlightCountry(state.current,"target"); setPrompt("Name this country","Highlighted in amber",`Question ${state.index} of ${COUNTRIES.length}`); $("#typeAnswer").value=""; $("#typeAnswer").focus();
@@ -86,9 +98,21 @@ function handleCountryClick(country){
   if(!state.active||state.mode==="learn"){ revealLearn(country); return; }
   if(state.mode==="type")return;
   state.attempts++;
-  if(country.id===state.current.id){ state.score++; state.completed.add(country.id); beep(true); highlightCountry(country,"correct"); showToast(`Correct — ${country.name}!`,true); setTimeout(nextQuestion,500); }
-  else { state.wrong.add(country.id); beep(false); highlightCountry(country,"wrong"); showToast(`That's ${country.name}. Try again.`,false); }
+  if(country.id===state.current.id){ resolveCorrect(country); }
+  else { state.mistakes++; state.wrong.add(country.id); beep(false); highlightCountry(country,"wrong"); registerMiss(`That's ${country.name}.`); }
   updateScore();
+}
+
+function resolveCorrect(country){
+  const earnedPoint=!state.revealed.has(country.id); if(earnedPoint)state.score++; state.completed.add(country.id); state.resolved.add(country.id); beep(true); highlightCountry(country,"correct"); showToast(earnedPoint?`Correct — ${country.name}!`:`Placed — ${country.name}.`,true); if(state.mode==="labels")state.current=null; setTimeout(nextQuestion,500);
+}
+
+function registerMiss(message){
+  const answer=state.current,tries=(state.triesByCountry.get(answer.id)||0)+1; state.triesByCountry.set(answer.id,tries);
+  if(tries<3){ showToast(`${message} ${3-tries} ${3-tries===1?"try":"tries"} left.`,false); return; }
+  state.revealed.add(answer.id); state.wrong.add(answer.id); highlightCountry(answer,"target"); addLabel(answer); beep(false);
+  if(state.mode==="labels")updateLabelTray();
+  showToast(`The answer is ${answer.name}. Select it to continue.`,false);
 }
 
 function revealLearn(country){ resetMapClasses(); highlightCountry(country,"target"); addLabel(country); setPrompt(country.region,country.name,`${country.capital} is the capital.`); showToast(`${country.name} · ${country.capital}`,true); }
@@ -96,19 +120,44 @@ function checkTypedAnswer(event){
   event.preventDefault(); if(!state.active||state.mode!=="type")return;
   const answer=$("#typeAnswer").value.trim().toLowerCase(); if(!answer)return; state.attempts++;
   const valid=[state.current.name,...state.current.aliases].some(name=>name.toLowerCase()===answer);
-  if(valid){ state.score++; state.completed.add(state.current.id); beep(true); highlightCountry(state.current,"correct"); showToast(`Correct — ${state.current.name}!`,true); setTimeout(nextQuestion,550); }
-  else { beep(false); showToast("Not quite—check the highlighted shape.",false); $("#typeAnswer").select(); }
+  if(valid){ resolveCorrect(state.current); }
+  else { state.mistakes++; beep(false); registerMiss("Not quite."); $("#typeAnswer").select(); }
   updateScore();
 }
 
-function skipQuestion(){ if(!state.active||!state.current)return; state.attempts++; state.wrong.add(state.current.id); highlightCountry(state.current,"wrong"); showToast(`That was ${state.current.name}.`,false); updateScore(); setTimeout(nextQuestion,650); }
+function skipQuestion(){
+  if(!state.active||!state.current)return;
+  const skipped=state.current;
+  if(state.mode==="labels"){
+    const remaining=COUNTRIES.filter(country=>!state.resolved.has(country.id)&&country.id!==skipped.id); state.current=remaining[0]||skipped;
+  } else {
+    state.order.push(skipped); state.current=null;
+  }
+  showToast(`${skipped.name} moved to later — no penalty.`,true); nextQuestion();
+}
+
+function renderLabelTray(){
+  const tray=$("#labelTray"); tray.classList.remove("hidden"); tray.innerHTML="";
+  COUNTRIES.forEach(country=>{
+    const button=document.createElement("button"); button.type="button"; button.textContent=country.name; button.dataset.countryId=country.id;
+    button.addEventListener("click",()=>{ if(state.resolved.has(country.id))return; state.current=country; setPrompt("Place this label",country.name,"Click the country on the map."); updateLabelTray(); });
+    tray.appendChild(button);
+  });
+  updateLabelTray();
+}
+
+function updateLabelTray(){
+  $$("#labelTray button").forEach(button=>{ const id=Number(button.dataset.countryId),placed=state.completed.has(id),revealed=state.revealed.has(id)&&!placed,active=state.current?.id===id; button.classList.toggle("placed",placed); button.classList.toggle("revealed",revealed); button.classList.toggle("active",active); button.disabled=state.resolved.has(id); });
+}
 function finishGame(){
   if(!state.active)return; state.active=false; endTimers(); $("#skipButton").classList.add("hidden");
-  const total=state.mode==="sprint"?state.attempts:COUNTRIES.length,accuracy=state.attempts?Math.round(state.score/state.attempts*100):0;
-  const attempt={mode:state.mode,score:state.score,total,accuracy,seconds:state.mode==="sprint"?60:state.elapsed,date:new Date().toISOString()};
+  const total=COUNTRIES.length,accuracy=Math.round(state.score/total*100),finishedAt=new Date(),mistakes=state.mistakes;
+  const attempt={mode:state.mode,score:state.score,total,accuracy,mistakes,seconds:state.mode==="sprint"?60:state.elapsed,date:finishedAt.toISOString()};
   const history=storage.read("monsoon-atlas-history",[]); history.unshift(attempt); storage.write("monsoon-atlas-history",history.slice(0,25));
-  setPrompt("Quiz complete",`${state.score} correct · ${accuracy}%`,`Finished in ${formatTime(attempt.seconds)}. Your result has been saved.`); $("#startButton").textContent="Play again"; showToast(`Finished! ${state.score} correct at ${accuracy}% accuracy.`,true); renderProgress(); updateBest();
-  setTimeout(()=>$(".game-shell").classList.remove("is-playing"),900);
+  setPrompt("Quiz complete",`${state.score} correct · ${accuracy}%`,`Finished in ${formatTime(attempt.seconds)}. Your result has been saved.`); $("#startButton").textContent="Play again"; renderProgress(); updateBest();
+  $("#endCompletedAt").textContent=new Intl.DateTimeFormat(undefined,{dateStyle:"full",timeStyle:"short"}).format(finishedAt);
+  $("#endPercent").textContent=`${accuracy}%`; $("#endScore").textContent=`${state.score} / ${total}`; $("#endTime").textContent=formatTime(attempt.seconds); $("#endMistakes").textContent=mistakes; $("#endMode").textContent=state.mode==="labels"?"Place labels":state.mode[0].toUpperCase()+state.mode.slice(1);
+  $("#endScreen").classList.remove("hidden");
 }
 
 function updateScore(){
@@ -162,7 +211,11 @@ function addLabel(country){
 }
 function clearHistory(){ if(!confirm("Reset all saved scores, dates, and streak progress on this device?"))return; localStorage.removeItem("monsoon-atlas-history"); renderProgress(); updateBest(); }
 function bindEvents(){
-  $$(".mode").forEach(button=>button.addEventListener("click",()=>setMode(button.dataset.mode))); $("#startButton").addEventListener("click",startGame); $("#skipButton").addEventListener("click",skipQuestion); $("#typeForm").addEventListener("submit",checkTypedAnswer); $("#clearHistory").addEventListener("click",clearHistory);
+  $$(".mode[data-mode]").forEach(button=>button.addEventListener("click",()=>setMode(button.dataset.mode)));
+  $("#moreMode").addEventListener("click",()=>{ const menu=$("#moreMenu"),open=menu.classList.toggle("hidden")===false; $("#moreMode").setAttribute("aria-expanded",String(open)); });
+  $$("[data-extra-mode]").forEach(button=>button.addEventListener("click",()=>setMode(button.dataset.extraMode)));
+  $("#startButton").addEventListener("click",startGame); $("#skipButton").addEventListener("click",skipQuestion); $("#typeForm").addEventListener("submit",checkTypedAnswer); $("#clearHistory").addEventListener("click",clearHistory);
+  $("#playAgainButton").addEventListener("click",startGame); $("#viewProgressButton").addEventListener("click",()=>{ $("#endScreen").classList.add("hidden"); $(".game-shell").classList.remove("is-playing"); $("#progress").scrollIntoView(); });
   $("#soundToggle").addEventListener("click",event=>{ state.sound=!state.sound; event.currentTarget.textContent=state.sound?"♪":"×"; event.currentTarget.title=state.sound?"Sound on":"Sound off"; event.currentTarget.setAttribute("aria-label",state.sound?"Turn sound off":"Turn sound on"); });
   $("#soundToggleGame").addEventListener("click",()=>$("#soundToggle").click());
   $("#toolbarLearn").addEventListener("click",()=>{ setMode("learn"); startGame(); });

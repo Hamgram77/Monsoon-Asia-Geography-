@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5bcf571">
+  <link rel="stylesheet" href="styles.css?v=labels1">
 </head>
 <body>
   <header class="topbar">
@@ -46,7 +46,11 @@
           <div class="mode-grid" role="tablist" aria-label="Quiz mode">
             <button class="mode active" data-mode="pin" role="tab" aria-selected="true"><span class="mode-icon">●</span><span><b>Pin</b><small>Find it</small></span></button>
             <button class="mode" data-mode="type" role="tab" aria-selected="false"><span class="mode-icon">Aa</span><span><b>Type</b><small>Name the highlight</small></span></button>
-            <button class="mode" data-mode="sprint" role="tab" aria-selected="false"><span class="mode-icon">•••</span><span><b>More</b><small>60-sec sprint</small></span></button>
+            <button class="mode" id="moreMode" type="button" aria-haspopup="true" aria-expanded="false"><span class="mode-icon">•••</span><span><b>More</b><small>Extra modes</small></span></button>
+          </div>
+          <div class="more-menu hidden" id="moreMenu">
+            <button type="button" data-extra-mode="labels"><b>Place the labels</b><small>Choose a name, then place it on the map</small></button>
+            <button type="button" data-extra-mode="sprint"><b>60-second sprint</b><small>Find as many countries as you can</small></button>
           </div>
 
           <div class="prompt-card" id="promptCard">
@@ -76,7 +80,24 @@
             <svg id="map" viewBox="0 0 900 590" role="img" aria-label="Countries of Monsoon Asia"></svg>
             <div class="map-tooltip hidden" id="mapTooltip"></div>
             <div class="result-toast hidden" id="resultToast" role="status" aria-live="polite"></div>
+            <div class="label-tray hidden" id="labelTray" aria-label="Country labels to place"></div>
             <div class="map-legend"><i></i> Monsoon Asia quiz area</div>
+          </div>
+        </section>
+        <section class="end-screen hidden" id="endScreen" aria-labelledby="endTitle">
+          <div class="end-card">
+            <span class="end-badge">Quiz complete</span>
+            <h2 id="endTitle">Nice work!</h2>
+            <p id="endCompletedAt"></p>
+            <div class="end-percent" id="endPercent">0%</div>
+            <div class="end-stats">
+              <div><small>Score</small><strong id="endScore">0 / 23</strong></div>
+              <div><small>Time</small><strong id="endTime">00:00</strong></div>
+              <div><small>Mistakes</small><strong id="endMistakes">0</strong></div>
+              <div><small>Mode</small><strong id="endMode">Pin</strong></div>
+            </div>
+            <p class="end-note">Your result and completion date were saved on this device.</p>
+            <div class="end-actions"><button id="playAgainButton">Play again</button><button id="viewProgressButton">View progress</button></div>
           </div>
         </section>
       </div>
@@ -111,6 +132,6 @@
   <footer><span>Monsoon Atlas</span><span>Built for geography practice · Progress stays on your device</span></footer>
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-  <script src="app.js?v=5bcf571"></script>
+  <script src="app.js?v=labels1"></script>
 </body>
 </html>

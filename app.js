@@ -115,7 +115,7 @@ function handleCountryClick(country){
   if(!state.active||state.mode==="learn"){ revealLearn(country); return; }
   const answerRevealed=state.revealed.has(state.current.id);
   if(state.mode==="type"&&!answerRevealed)return;
-  if(!answerRevealed)state.attempts++;
+  if(!answerRevealed||country.id===state.current.id)state.attempts++;
   if(country.id===state.current.id){ resolveCorrect(country); }
   else if(answerRevealed){ beep(false); highlightCountry(country,"wrong"); showToast(`Click the highlighted answer — ${state.current.name}.`,false); }
   else { state.mistakes++; state.wrong.add(country.id); beep(false); highlightCountry(country,"wrong"); registerMiss(`That's ${country.name}.`); }
@@ -123,7 +123,7 @@ function handleCountryClick(country){
 }
 
 function resolveCorrect(country){
-  const earnedPoint=!state.revealed.has(country.id); if(earnedPoint)state.score++; state.completed.add(country.id); state.resolved.add(country.id); beep(true); highlightCountry(country,"correct"); showToast(earnedPoint?`Correct — ${country.name}!`:`Placed — ${country.name}.`,true); if(state.mode==="labels")state.current=null; setTimeout(nextQuestion,500);
+  const wasRevealed=state.revealed.has(country.id); state.score++; state.completed.add(country.id); state.resolved.add(country.id); beep(true); highlightCountry(country,"correct"); showToast(wasRevealed?`Found — ${country.name}. Partial accuracy credit earned.`:`Correct — ${country.name}!`,true); if(state.mode==="labels")state.current=null; setTimeout(nextQuestion,500);
 }
 
 function registerMiss(message){
@@ -172,7 +172,7 @@ function updateLabelTray(){
 }
 function finishGame(){
   if(!state.active)return; state.active=false; endTimers(); $("#skipButton").classList.add("hidden");
-  const total=COUNTRIES.length,accuracy=Math.round(state.score/total*100),finishedAt=new Date(),mistakes=state.mistakes;
+  const total=COUNTRIES.length,accuracy=state.attempts?Math.round(state.score/state.attempts*100):0,finishedAt=new Date(),mistakes=state.mistakes;
   const attempt={mode:state.mode,score:state.score,total,accuracy,mistakes,seconds:state.mode==="sprint"?60:state.elapsed,date:finishedAt.toISOString()};
   const history=storage.read("monsoon-atlas-history",[]); history.unshift(attempt); storage.write("monsoon-atlas-history",history.slice(0,25));
   setPrompt("Quiz complete",`${state.score} correct · ${accuracy}%`,`Finished in ${formatTime(attempt.seconds)}. Your result has been saved.`); $("#startButton").textContent="Play again"; renderProgress(); updateBest();

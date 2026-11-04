@@ -232,6 +232,16 @@ body { background:var(--paper); color:var(--ink); }
 .region-chips span { color:#155aa8; background:#e4f2ff; }
 .country-number { color:#155aa8; background:#e4f2ff; }
 footer { background:#071b48; color:#aebfde; }
+.site-footer { position:relative; z-index:2; display:grid; grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr); align-items:center; gap:28px; min-height:112px; padding:24px clamp(24px,5vw,72px); border-top:4px solid #ffd33d; box-shadow:0 -12px 34px rgba(7,27,72,.12); }
+.footer-brand { display:flex; align-items:center; gap:12px; }
+.footer-mark { display:grid; place-items:center; width:40px; height:40px; flex:0 0 auto; color:#071b48 !important; background:#ffd33d; border-radius:50%; font:800 15px Manrope,sans-serif !important; }
+.footer-brand strong,.footer-brand small { display:block; }
+.footer-brand strong { color:white; font:800 15px Manrope,sans-serif; }
+.footer-brand small { margin-top:2px; color:#aebfde; font-size:10px; }
+.footer-nav { display:flex; justify-content:center; gap:6px; }
+.footer-nav button { padding:9px 12px; color:#d8e4f8; background:transparent; border:1px solid rgba(216,228,248,.22); border-radius:9px; font:700 11px Manrope,sans-serif; cursor:pointer; }
+.footer-nav button:hover,.footer-nav button:focus-visible { color:#071b48; background:#ffd33d; border-color:#ffd33d; outline:none; }
+.site-footer p { margin:0; color:#aebfde; text-align:right; font-size:11px; line-height:1.5; }
 .consent-locked { overflow:hidden; }
 .consent-overlay { position:fixed; z-index:1000; inset:0; display:grid; place-items:center; padding:22px; color:#142650; background:rgba(4,16,46,.94); backdrop-filter:blur(14px); opacity:1; transition:opacity .28s ease; }
 .consent-overlay.consent-accepted { opacity:0; pointer-events:none; }
@@ -283,6 +293,8 @@ footer { background:#071b48; color:#aebfde; }
   .end-stats { grid-template-columns:1fr 1fr; }
   .end-stats div { border-bottom:1px solid #dce5f2; }
   .end-actions { flex-direction:column; }
+  .site-footer { grid-template-columns:1fr; justify-items:center; gap:16px; padding:24px 18px; text-align:center; }
+  .site-footer p { text-align:center; }
   .consent-overlay { padding:10px; }
   .consent-card { max-height:calc(100vh - 20px); padding:24px 18px; border-radius:18px; }
   .consent-card h2 { font-size:29px; }

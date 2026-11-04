@@ -46,7 +46,6 @@ function setupCountryList(){
 
 function setupConsent(){
   const overlay=$("#consentOverlay"),button=$("#agreeButton"),countdown=$("#agreeCountdown");
-  if(storage.read("monsoon-atlas-agreed",false)){ overlay.remove(); return; }
   document.body.classList.add("consent-locked");
   const protectedContent=$$("body > :not(#consentOverlay):not(script)"); protectedContent.forEach(element=>element.inert=true);
   let remaining=3;
@@ -57,7 +56,6 @@ function setupConsent(){
   },1000);
   button.addEventListener("click",()=>{
     if(button.disabled)return;
-    storage.write("monsoon-atlas-agreed",{acceptedAt:new Date().toISOString()});
     protectedContent.forEach(element=>element.inert=false); document.body.classList.remove("consent-locked"); overlay.classList.add("consent-accepted");
     setTimeout(()=>overlay.remove(),280);
   });

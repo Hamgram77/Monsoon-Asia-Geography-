@@ -26,7 +26,7 @@ const COUNTRIES = [
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
-const state = { mode:"learn",active:false,score:0,attempts:0,index:0,order:[],current:null,elapsed:0,timer:null,mapReady:false,sound:true,completed:new Set(),wrong:new Set() };
+const state = { mode:"pin",active:false,score:0,attempts:0,index:0,order:[],current:null,elapsed:0,timer:null,mapReady:false,sound:true,completed:new Set(),wrong:new Set() };
 const storage = {
   read(key,fallback){ try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
   write(key,value){ localStorage.setItem(key,JSON.stringify(value)); }
@@ -46,9 +46,10 @@ function setupCountryList(){
 
 function setMode(mode){
   endTimers(); Object.assign(state,{mode,active:false,score:0,attempts:0,elapsed:0}); state.completed.clear(); state.wrong.clear();
+  $(".game-shell").classList.remove("is-playing");
   $$(".mode").forEach(button=>{ const active=button.dataset.mode===mode; button.classList.toggle("active",active); button.setAttribute("aria-selected",active); });
   $("#typeForm").classList.toggle("hidden",mode!=="type"); $("#skipButton").classList.add("hidden");
-  $("#startButton").textContent=mode==="learn"?"Start learning":`Start ${mode}`;
+  $("#startButton").textContent=mode==="learn"?"Start learning":"Start quiz";
   const copy={ learn:["Study mode","Select any country","Click the map to reveal its name and capital."],pin:["Pin mode","Ready to locate?","Find each named country on the map."],type:["Type mode","Ready to identify?","Name the country highlighted on the map."],sprint:["Sprint mode","60 seconds","Find as many countries as you can before time runs out."] }[mode];
   setPrompt(...copy); resetMapClasses(); updateScore(); updateBest();
 }
@@ -58,6 +59,7 @@ function setPrompt(kicker,title,hint){ $("#promptKicker").textContent=kicker; $(
 function startGame(){
   if(!state.mapReady){ showToast("The map is still loading.",false); return; }
   resetMapClasses(); Object.assign(state,{active:true,score:0,attempts:0,elapsed:0,index:0,order:shuffle(COUNTRIES)}); state.completed.clear(); state.wrong.clear();
+  $(".game-shell").classList.add("is-playing");
   $("#startButton").textContent="Restart";
   if(state.mode==="learn"){
     setPrompt("Study mode","Choose a country","Click anywhere in green to learn its capital."); COUNTRIES.forEach(addLabel);
@@ -106,6 +108,7 @@ function finishGame(){
   const attempt={mode:state.mode,score:state.score,total,accuracy,seconds:state.mode==="sprint"?60:state.elapsed,date:new Date().toISOString()};
   const history=storage.read("monsoon-atlas-history",[]); history.unshift(attempt); storage.write("monsoon-atlas-history",history.slice(0,25));
   setPrompt("Quiz complete",`${state.score} correct · ${accuracy}%`,`Finished in ${formatTime(attempt.seconds)}. Your result has been saved.`); $("#startButton").textContent="Play again"; showToast(`Finished! ${state.score} correct at ${accuracy}% accuracy.`,true); renderProgress(); updateBest();
+  setTimeout(()=>$(".game-shell").classList.remove("is-playing"),900);
 }
 
 function updateScore(){
@@ -161,6 +164,8 @@ function clearHistory(){ if(!confirm("Reset all saved scores, dates, and streak 
 function bindEvents(){
   $$(".mode").forEach(button=>button.addEventListener("click",()=>setMode(button.dataset.mode))); $("#startButton").addEventListener("click",startGame); $("#skipButton").addEventListener("click",skipQuestion); $("#typeForm").addEventListener("submit",checkTypedAnswer); $("#clearHistory").addEventListener("click",clearHistory);
   $("#soundToggle").addEventListener("click",event=>{ state.sound=!state.sound; event.currentTarget.textContent=state.sound?"♪":"×"; event.currentTarget.title=state.sound?"Sound on":"Sound off"; event.currentTarget.setAttribute("aria-label",state.sound?"Turn sound off":"Turn sound on"); });
+  $("#soundToggleGame").addEventListener("click",()=>$("#soundToggle").click());
+  $("#toolbarLearn").addEventListener("click",()=>{ setMode("learn"); startGame(); });
   $$('[data-scroll]').forEach(button=>button.addEventListener("click",()=>document.getElementById(button.dataset.scroll).scrollIntoView()));
 }
-setupCountryList(); bindEvents(); renderProgress(); setMode("learn"); drawMap();
+setupCountryList(); bindEvents(); renderProgress(); setMode("pin"); drawMap();

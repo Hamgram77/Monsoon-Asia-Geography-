@@ -12,7 +12,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Monsoon Atlas home"><span class="brand-mark" aria-hidden="true">MA</span><span>Monsoon <b>Atlas</b></span></a>
+    <a class="brand" href="#" aria-label="Monsoon Asia Quiz home"><span class="brand-mark" aria-hidden="true">M</span><span>Monsoon Asia <b>Quiz</b></span></a>
     <nav class="topnav" aria-label="Primary navigation">
       <button class="nav-link active" data-scroll="game">Play</button>
       <button class="nav-link" data-scroll="progress">Progress</button>
@@ -23,20 +23,30 @@
 
   <main>
     <section class="hero" id="game">
-      <div class="eyebrow">Interactive geography lab</div>
+      <div class="eyebrow">Interactive map quiz</div>
       <div class="hero-copy">
         <div><h1>Monsoon Asia: <span>Countries</span></h1><p>From the Himalayas to the Pacific islands—learn all 23 countries, then test your map skills.</p></div>
         <div class="hero-stat" title="Your current daily streak"><span class="flame">◆</span><strong id="streakValue">0</strong><small>day streak</small></div>
       </div>
 
       <div class="game-shell">
+        <div class="game-toolbar">
+          <button class="toolbar-button" data-scroll="about">← Study list</button>
+          <div class="toolbar-actions">
+            <button class="toolbar-button" id="toolbarLearn">Learn</button>
+            <button class="toolbar-button icon-only" id="soundToggleGame" aria-label="Toggle sound">♪</button>
+          </div>
+        </div>
         <aside class="control-panel">
+          <div class="game-title-block">
+            <span class="globe-mark" aria-hidden="true">🌏</span>
+            <h2>Monsoon Asia: Countries</h2>
+          </div>
           <div class="panel-label">Game mode</div>
           <div class="mode-grid" role="tablist" aria-label="Quiz mode">
-            <button class="mode active" data-mode="learn" role="tab" aria-selected="true"><span class="mode-icon">◎</span><span><b>Learn</b><small>Explore the map</small></span></button>
-            <button class="mode" data-mode="pin" role="tab" aria-selected="false"><span class="mode-icon">⌖</span><span><b>Pin</b><small>Find each country</small></span></button>
+            <button class="mode active" data-mode="pin" role="tab" aria-selected="true"><span class="mode-icon">●</span><span><b>Pin</b><small>Find it</small></span></button>
             <button class="mode" data-mode="type" role="tab" aria-selected="false"><span class="mode-icon">Aa</span><span><b>Type</b><small>Name the highlight</small></span></button>
-            <button class="mode" data-mode="sprint" role="tab" aria-selected="false"><span class="mode-icon">↗</span><span><b>Sprint</b><small>60-second challenge</small></span></button>
+            <button class="mode" data-mode="sprint" role="tab" aria-selected="false"><span class="mode-icon">•••</span><span><b>More</b><small>60-sec sprint</small></span></button>
           </div>
 
           <div class="prompt-card" id="promptCard">
@@ -50,7 +60,7 @@
             <div class="input-row"><input id="typeAnswer" type="text" placeholder="Country name…" spellcheck="false"><button type="submit">Check</button></div>
           </form>
 
-          <button class="primary-button" id="startButton">Start learning</button>
+          <button class="primary-button" id="startButton">Start quiz</button>
           <button class="text-button hidden" id="skipButton">Skip this country</button>
         </aside>
 

@@ -236,11 +236,14 @@ body { background:var(--paper); color:var(--ink); }
 .contact-strip strong,.contact-strip span { display:block; }
 .contact-strip strong { color:white; font:800 14px Manrope,sans-serif; }
 .contact-strip div>span { margin-top:3px; color:#b9cbea; font-size:12px; }
-.contact-strip b { color:#ffd33d; }
+.contact-email { color:#ffd33d; font-weight:800; text-decoration:underline; text-underline-offset:3px; }
+.contact-email:hover,.contact-email:focus-visible { color:white; outline:none; }
 footer { background:#071b48; color:#aebfde; }
 .site-footer { position:relative; z-index:2; display:grid; grid-template-columns:1fr minmax(280px,1.4fr) 1fr; align-items:center; gap:28px; min-height:122px; padding:24px clamp(24px,5vw,72px); border-top:4px solid #ffd33d; background:#071b48; box-shadow:0 -12px 34px rgba(7,27,72,.12); }
 .site-footer p { margin:0; color:#aebfde; text-align:center; font-size:11px; line-height:1.65; }
 .site-footer strong { color:white; font-weight:800; }
+.footer-email { color:white; font-weight:800; text-decoration:underline; text-underline-offset:3px; }
+.footer-email:hover,.footer-email:focus-visible { color:#ffd33d; outline:none; }
 .spam-trap { display:none !important; }
 .consent-locked { overflow:hidden; }
 .consent-overlay { position:fixed; z-index:1000; inset:0; display:grid; place-items:center; padding:22px; color:#142650; background:rgba(4,16,46,.94); backdrop-filter:blur(14px); opacity:1; transition:opacity .28s ease; }
@@ -254,7 +257,8 @@ footer { background:#071b48; color:#aebfde; }
 .consent-card li { margin:0 0 11px; padding-left:4px; font-size:13px; line-height:1.5; }
 .consent-card li:last-child { margin-bottom:0; }
 .consent-card .consent-contact { margin:14px 0; padding:12px 14px; color:#173b72; text-align:center; background:#fff8d8; border:1px solid #f3d76b; border-radius:12px; }
-.consent-contact b { color:#0b2558; }
+.consent-contact a { color:#0b2558; font-weight:800; text-decoration:underline; text-underline-offset:3px; }
+.consent-contact a:hover,.consent-contact a:focus-visible { color:#237bd8; outline:none; }
 .consent-thanks { text-align:center; font-weight:700; }
 .consent-card button { display:block; min-width:190px; margin:22px auto 8px; padding:14px 24px; color:#08204c; background:#ffd33d; border:0; border-radius:99px; font-weight:800; box-shadow:0 6px 0 #d5a500; }
 .consent-card button:disabled { color:#8490a9; background:#dce3ed; box-shadow:0 6px 0 #bbc5d4; cursor:not-allowed; }

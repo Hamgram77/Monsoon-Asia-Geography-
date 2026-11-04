@@ -216,7 +216,12 @@ body { background:var(--paper); color:var(--ink); }
 .game-shell.is-playing .type-form { width:100%; margin:8px 0 0; padding:10px; pointer-events:auto; background:#fff; border-radius:12px; }
 .game-shell.is-playing .type-form label { color:#526789; }
 .game-shell.is-playing .text-button { position:absolute; top:535px; display:block; width:150px; color:white; pointer-events:auto; background:rgba(5,24,65,.8); border:1px solid rgba(255,255,255,.35); border-radius:99px; }
-.game-shell.labels-mode.is-playing .text-button { top:auto; bottom:136px; }
+.game-shell.labels-mode.is-playing .text-button { top:82px; bottom:auto; }
+.game-shell.labels-mode.is-playing .result-toast { top:218px; }
+.game-shell.labels-mode.is-playing .map-wrap { display:flex; flex-direction:column; }
+.game-shell.labels-mode.is-playing #map { flex:1 1 auto; height:auto; min-height:0; }
+.game-shell.labels-mode.is-playing .label-tray { position:static; flex:0 0 118px; width:100%; max-height:118px; padding:10px 16px; border-right:0; border-bottom:0; border-left:0; border-radius:0; box-shadow:0 -8px 24px rgba(0,0,0,.2); }
+.game-shell.labels-mode.is-playing .map-legend { bottom:130px; }
 .progress-section { padding:65px 24px; background:white; }
 .section-heading,.progress-grid { max-width:1080px; }
 .summary-card,.history-card { border-color:#dce5f2; box-shadow:0 8px 25px rgba(21,54,102,.06); }
@@ -227,6 +232,21 @@ body { background:var(--paper); color:var(--ink); }
 .region-chips span { color:#155aa8; background:#e4f2ff; }
 .country-number { color:#155aa8; background:#e4f2ff; }
 footer { background:#071b48; color:#aebfde; }
+.consent-locked { overflow:hidden; }
+.consent-overlay { position:fixed; z-index:1000; inset:0; display:grid; place-items:center; padding:22px; color:#142650; background:rgba(4,16,46,.94); backdrop-filter:blur(14px); opacity:1; transition:opacity .28s ease; }
+.consent-overlay.consent-accepted { opacity:0; pointer-events:none; }
+.consent-card { width:min(680px,100%); max-height:calc(100vh - 44px); padding:34px 38px; overflow:auto; background:white; border:1px solid rgba(255,255,255,.5); border-radius:24px; box-shadow:0 28px 80px rgba(0,0,0,.48); }
+.consent-mark { display:grid; place-items:center; width:48px; height:48px; margin:0 auto 14px; color:#09204f; background:#ffd33d; border-radius:50%; font:800 18px Manrope,sans-serif; }
+.consent-card h2 { color:#0b2558; text-align:center; font-size:36px; letter-spacing:-1.5px; }
+.consent-card p { color:#5a6a89; font-size:14px; line-height:1.6; }
+.consent-card .consent-lead { margin-top:7px; color:#237bd8; text-align:center; font-weight:800; }
+.consent-card ul { margin:18px 0; padding:18px 18px 18px 36px; color:#4e6082; background:#f1f6fd; border:1px solid #dbe7f7; border-radius:14px; }
+.consent-card li { margin:0 0 11px; padding-left:4px; font-size:13px; line-height:1.5; }
+.consent-card li:last-child { margin-bottom:0; }
+.consent-thanks { text-align:center; font-weight:700; }
+.consent-card button { display:block; min-width:190px; margin:22px auto 8px; padding:14px 24px; color:#08204c; background:#ffd33d; border:0; border-radius:99px; font-weight:800; box-shadow:0 6px 0 #d5a500; }
+.consent-card button:disabled { color:#8490a9; background:#dce3ed; box-shadow:0 6px 0 #bbc5d4; cursor:not-allowed; }
+.consent-card small { display:block; color:#77849e; text-align:center; }
 
 @media (max-width:900px) {
   .game-shell { min-height:680px; }
@@ -254,9 +274,18 @@ footer { background:#071b48; color:#aebfde; }
   .result-toast { top:125px; min-width:210px; }
   .more-menu { width:280px; }
   .label-tray { left:8px; right:8px; bottom:8px; max-height:124px; }
+  .game-shell.labels-mode.is-playing .label-tray { flex-basis:142px; max-height:142px; padding:8px; }
+  .game-shell.labels-mode.is-playing .map-legend { bottom:150px; }
+  .game-shell.labels-mode.is-playing .text-button { top:72px; }
+  .game-shell.labels-mode.is-playing .result-toast { top:190px; }
   .end-card { padding:24px 16px; }
   .end-percent { font-size:50px; }
   .end-stats { grid-template-columns:1fr 1fr; }
   .end-stats div { border-bottom:1px solid #dce5f2; }
   .end-actions { flex-direction:column; }
+  .consent-overlay { padding:10px; }
+  .consent-card { max-height:calc(100vh - 20px); padding:24px 18px; border-radius:18px; }
+  .consent-card h2 { font-size:29px; }
+  .consent-card p { font-size:13px; }
+  .consent-card ul { padding:14px 12px 14px 29px; }
 }

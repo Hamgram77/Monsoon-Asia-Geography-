@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=labels1">
+  <link rel="stylesheet" href="styles.css?v=consent1">
 </head>
 <body>
   <header class="topbar">
@@ -130,8 +130,25 @@
   </main>
 
   <footer><span>Monsoon Atlas</span><span>Built for geography practice · Progress stays on your device</span></footer>
+  <section class="consent-overlay" id="consentOverlay" role="dialog" aria-modal="true" aria-labelledby="consentTitle" aria-describedby="consentIntro">
+    <div class="consent-card">
+      <span class="consent-mark" aria-hidden="true">M</span>
+      <h2 id="consentTitle">Welcome to Monsoon Atlas</h2>
+      <p id="consentIntro" class="consent-lead">An independent student project made by Graham!</p>
+      <p>This website was entirely designed, coded, and built from scratch. Countless hours of hard work, debugging, and geographic mapping went into creating this platform as a high-quality, unblocked alternative for Social Studies review.</p>
+      <p>By clicking <strong>“I Agree,”</strong> you acknowledge and agree to the following terms of use:</p>
+      <ul>
+        <li><strong>Academic Integrity:</strong> You will use this tool strictly for educational purposes, classroom study, and geography practice.</li>
+        <li><strong>Respect the Craft:</strong> You recognize and respect the time, effort, and independent development put into building this site from scratch.</li>
+        <li><strong>Local Storage:</strong> You understand that your scores, streaks, and progress data are saved entirely within your own browser's local storage and remain strictly on your device.</li>
+      </ul>
+      <p class="consent-thanks">Thank you for supporting student-led development. Happy studying!</p>
+      <button id="agreeButton" disabled>I Agree · 3</button>
+      <small id="agreeCountdown" aria-live="polite">Please read the agreement. The button unlocks in 3 seconds.</small>
+    </div>
+  </section>
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
-  <script src="app.js?v=labels1"></script>
+  <script src="app.js?v=consent1"></script>
 </body>
 </html>

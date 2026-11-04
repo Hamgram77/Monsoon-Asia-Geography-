@@ -44,6 +44,25 @@ function setupCountryList(){
   $("#countryList").innerHTML=COUNTRIES.map((c,i)=>`<div class="country-card"><span class="country-number">${String(i+1).padStart(2,"0")}</span><span><b>${c.name}</b><small>${c.capital} · ${c.region}</small></span></div>`).join("");
 }
 
+function setupConsent(){
+  const overlay=$("#consentOverlay"),button=$("#agreeButton"),countdown=$("#agreeCountdown");
+  if(storage.read("monsoon-atlas-agreed",false)){ overlay.remove(); return; }
+  document.body.classList.add("consent-locked");
+  const protectedContent=$$("body > :not(#consentOverlay):not(script)"); protectedContent.forEach(element=>element.inert=true);
+  let remaining=3;
+  const timer=setInterval(()=>{
+    remaining--;
+    if(remaining>0){ button.textContent=`I Agree · ${remaining}`; countdown.textContent=`Please read the agreement. The button unlocks in ${remaining} ${remaining===1?"second":"seconds"}.`; return; }
+    clearInterval(timer); button.disabled=false; button.textContent="I Agree"; countdown.textContent="You may now accept and enter Monsoon Atlas."; button.focus();
+  },1000);
+  button.addEventListener("click",()=>{
+    if(button.disabled)return;
+    storage.write("monsoon-atlas-agreed",{acceptedAt:new Date().toISOString()});
+    protectedContent.forEach(element=>element.inert=false); document.body.classList.remove("consent-locked"); overlay.classList.add("consent-accepted");
+    setTimeout(()=>overlay.remove(),280);
+  });
+}
+
 function setMode(mode){
   endTimers(); Object.assign(state,{mode,active:false,score:0,attempts:0,mistakes:0,elapsed:0,current:null}); state.completed.clear(); state.resolved.clear(); state.revealed.clear(); state.wrong.clear(); state.triesByCountry.clear();
   $("#endScreen").classList.add("hidden");
@@ -221,4 +240,4 @@ function bindEvents(){
   $("#toolbarLearn").addEventListener("click",()=>{ setMode("learn"); startGame(); });
   $$('[data-scroll]').forEach(button=>button.addEventListener("click",()=>document.getElementById(button.dataset.scroll).scrollIntoView()));
 }
-setupCountryList(); bindEvents(); renderProgress(); setMode("pin"); drawMap();
+setupConsent(); setupCountryList(); bindEvents(); renderProgress(); setMode("pin"); drawMap();

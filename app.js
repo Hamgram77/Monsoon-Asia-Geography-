@@ -113,9 +113,11 @@ function nextQuestion(){
 
 function handleCountryClick(country){
   if(!state.active||state.mode==="learn"){ revealLearn(country); return; }
-  if(state.mode==="type")return;
-  state.attempts++;
+  const answerRevealed=state.revealed.has(state.current.id);
+  if(state.mode==="type"&&!answerRevealed)return;
+  if(!answerRevealed)state.attempts++;
   if(country.id===state.current.id){ resolveCorrect(country); }
+  else if(answerRevealed){ beep(false); highlightCountry(country,"wrong"); showToast(`Click the highlighted answer — ${state.current.name}.`,false); }
   else { state.mistakes++; state.wrong.add(country.id); beep(false); highlightCountry(country,"wrong"); registerMiss(`That's ${country.name}.`); }
   updateScore();
 }
@@ -129,12 +131,14 @@ function registerMiss(message){
   if(tries<3){ showToast(`${message} ${3-tries} ${3-tries===1?"try":"tries"} left.`,false); return; }
   state.revealed.add(answer.id); state.wrong.add(answer.id); highlightCountry(answer,"target"); addLabel(answer); beep(false);
   if(state.mode==="labels")updateLabelTray();
+  setPrompt("Answer revealed",answer.name,"Click the highlighted country on the map to continue.");
   showToast(`The answer is ${answer.name}. Select it to continue.`,false);
 }
 
 function revealLearn(country){ resetMapClasses(); highlightCountry(country,"target"); addLabel(country); setPrompt(country.region,country.name,`${country.capital} is the capital.`); showToast(`${country.name} · ${country.capital}`,true); }
 function checkTypedAnswer(event){
   event.preventDefault(); if(!state.active||state.mode!=="type")return;
+  if(state.revealed.has(state.current.id)){ showToast(`Click the highlighted answer — ${state.current.name}.`,false); return; }
   const answer=$("#typeAnswer").value.trim().toLowerCase(); if(!answer)return; state.attempts++;
   const valid=[state.current.name,...state.current.aliases].some(name=>name.toLowerCase()===answer);
   if(valid){ resolveCorrect(state.current); }

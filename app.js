@@ -206,11 +206,14 @@ function showToast(message,success){ const toast=$("#resultToast"); toast.textCo
 
 let projection,pathGenerator,mapLayer,labelLayer;
 async function drawMap(){
-  const svg=d3.select("#map"); projection=d3.geoMercator().center([104,24]).scale(610).translate([450,295]); pathGenerator=d3.geoPath(projection);
-  svg.append("path").datum(d3.geoGraticule().step([10,10])()).attr("class","ocean-lines").attr("d",pathGenerator); mapLayer=svg.append("g"); labelLayer=svg.append("g").attr("class","labels");
+  const svg=d3.select("#map"); projection=d3.geoMercator();
   try {
     const response=await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"); if(!response.ok)throw new Error("Map data unavailable");
     const world=await response.json(),features=topojson.feature(world,world.objects.countries).features;
+    const quizFeatures=features.filter(feature=>countryById(feature.id));
+    const markerFeatures=COUNTRIES.filter(country=>country.marker).map(country=>({type:"Feature",geometry:{type:"Point",coordinates:country.marker}}));
+    projection.fitExtent([[38,28],[862,556]],{type:"FeatureCollection",features:[...quizFeatures,...markerFeatures]}); pathGenerator=d3.geoPath(projection);
+    svg.append("path").datum(d3.geoGraticule().step([10,10])()).attr("class","ocean-lines").attr("d",pathGenerator); mapLayer=svg.append("g"); labelLayer=svg.append("g").attr("class","labels");
     const visible=features.filter(feature=>{ const [x,y]=pathGenerator.centroid(feature); return x>-100&&x<1000&&y>-100&&y<680; });
     mapLayer.selectAll("path").data(visible).join("path").attr("d",pathGenerator).attr("class",feature=>countryById(feature.id)?"quiz-country":"outside-country").attr("data-id",feature=>Number(feature.id))
       .on("click",(event,feature)=>{ const c=countryById(feature.id); if(c)handleCountryClick(c); }).on("mousemove",(event,feature)=>{ const c=countryById(feature.id); if(c)showMapTooltip(event,c); }).on("mouseleave",hideMapTooltip);
